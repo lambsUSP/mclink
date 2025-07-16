@@ -23,7 +23,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // mc_sample_matrix
-std::vector<int> mc_sample_matrix(const arma::sp_mat& M, const size_t sample_size, const int min_distance);
+arma::sp_mat mc_sample_matrix(const arma::sp_mat& M, const size_t sample_size, const int min_distance);
 RcppExport SEXP _mclink_mc_sample_matrix(SEXP MSEXP, SEXP sample_sizeSEXP, SEXP min_distanceSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

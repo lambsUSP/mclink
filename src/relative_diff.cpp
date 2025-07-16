@@ -2,7 +2,8 @@
 #include <RcppArmadillo.h>
 #include <random>
 #include <vector>
-#include <algorithm> // To use std::min and std::max
+#include <algorithm>
+
 
 // Convert sparse column in a dense vector with: -1, 0 and 1
 arma::Col<int> convert_sign_vector(const arma::sp_vec &v, arma::uword n_rows) {
@@ -57,9 +58,8 @@ arma::mat relative_diff(const arma::sp_mat &M) {
 }
 
 
-// [[Rcpp::export]]
-std::vector<int> mc_sample_matrix(const arma::sp_mat &M, const size_t sample_size = 1000, const int min_distance = 1000){
-  int end = M.n_rows;
+std::vector<int> mc_sample_rows(const int nrows, const size_t sample_size = 1000, const int min_distance = 1000){
+  int end = nrows;
   std::vector<int> rows(end);
   std::iota(rows.begin(), rows.end(), 0); // Fill with the elements {0,1,...,M.nrows}
   std::vector<int> sample;
@@ -92,6 +92,46 @@ std::vector<int> mc_sample_matrix(const arma::sp_mat &M, const size_t sample_siz
     --end;
   }
   
-  std::sort(sample.begin(), sample.end());
   return sample;
+}
+
+
+// [[Rcpp::export]]
+arma::sp_mat mc_sample_matrix(const arma::sp_mat &M, const size_t sample_size = 1000, const int min_distance = 1000) {
+  std::vector<int> rows = mc_sample_rows(M.n_rows, sample_size, min_distance);
+  arma::uword n_sample = rows.size();
+  arma::uword n_cols = M.n_cols;
+  
+  std::vector<arma::uword> row_inds;
+  std::vector<arma::uword> col_inds;
+  std::vector<double> values;
+  
+  // Optimization: allocate a little more memory than necessary.
+  row_inds.reserve(M.n_nonzero);  
+  col_inds.reserve(M.n_nonzero);
+  values.reserve(M.n_nonzero);
+  
+  for (arma::uword i = 0; i < n_sample; ++i) {
+    arma::uword row = rows[i];
+    for (arma::sp_mat::const_row_iterator it = M.begin_row(row); it != M.end_row(row); ++it) {
+      row_inds.push_back(i);          
+      col_inds.push_back(it.col());   
+      values.push_back(*it);          
+    }
+  }
+  
+  arma::umat locations(2, values.size());
+  
+  std::copy(row_inds.begin(), row_inds.end(), locations.row(0).begin());
+  std::copy(col_inds.begin(), col_inds.end(), locations.row(1).begin());
+  
+  // Construct the sparse matrix directly
+  arma::sp_mat sample_matrix(
+      locations,
+      arma::vec(values),
+      n_sample, n_cols,
+      true, false
+  );
+  
+  return sample_matrix;
 }
