@@ -135,3 +135,57 @@ arma::sp_mat mc_sample_matrix(const arma::sp_mat &M, const size_t sample_size = 
   
   return sample_matrix;
 }
+
+
+// [[Rcpp::export]]
+arma::sp_mat mc_shuffle_matrix(const arma::sp_mat &M) {
+  const arma::uword n_rows = M.n_rows;
+  const arma::uword n_cols = M.n_cols;
+  
+  std::vector<arma::uword> row_inds;
+  std::vector<arma::uword> col_inds;
+  std::vector<double> values;
+  
+  row_inds.reserve(M.n_nonzero);
+  col_inds.reserve(M.n_nonzero);
+  values.reserve(M.n_nonzero);
+   
+  std::random_device rd;
+  std::mt19937 gen(rd());
+   
+  for (arma::uword i = 0; i < n_rows; ++i) {
+    std::vector<arma::uword> original_cols;
+    std::vector<double> original_vals;
+     
+    for (arma::sp_mat::const_row_iterator it = M.begin_row(i); it != M.end_row(i); ++it) {
+      original_cols.push_back(it.col());
+      original_vals.push_back(*it);
+    }
+     
+    arma::uword nnz = original_cols.size();
+    if (nnz == 0) continue;
+     
+    // Generate shuffled columns 
+    std::vector<arma::uword> shuffled_cols(n_cols);
+    std::iota(shuffled_cols.begin(), shuffled_cols.end(), 0);
+    std::shuffle(shuffled_cols.begin(), shuffled_cols.end(), gen);
+    shuffled_cols.resize(nnz);
+     
+    // Save new triple (line, shuffled column and original value)
+    for (arma::uword j = 0; j < nnz; ++j) {
+      row_inds.push_back(i);
+      col_inds.push_back(shuffled_cols[j]);
+      values.push_back(original_vals[j]);
+    } 
+  } 
+  
+  arma::umat locations(2, values.size());
+  std::copy(row_inds.begin(), row_inds.end(), locations.row(0).begin());
+  std::copy(col_inds.begin(), col_inds.end(), locations.row(1).begin());
+   
+  arma::vec val_vec(values);
+   
+  return arma::sp_mat(locations, val_vec, n_rows, n_cols);
+} 
+
+

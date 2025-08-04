@@ -35,10 +35,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// shuffle_sparse_rows
+arma::sp_mat shuffle_sparse_rows(const arma::sp_mat& M);
+RcppExport SEXP _mclink_shuffle_sparse_rows(SEXP MSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type M(MSEXP);
+    rcpp_result_gen = Rcpp::wrap(shuffle_sparse_rows(M));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mclink_relative_diff", (DL_FUNC) &_mclink_relative_diff, 1},
     {"_mclink_mc_sample_matrix", (DL_FUNC) &_mclink_mc_sample_matrix, 3},
+    {"_mclink_shuffle_sparse_rows", (DL_FUNC) &_mclink_shuffle_sparse_rows, 1},
     {NULL, NULL, 0}
 };
 
