@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // relative_diff
-arma::mat relative_diff(const arma::sp_mat& M);
+arma::vec relative_diff(const arma::sp_mat& M);
 RcppExport SEXP _mclink_relative_diff(SEXP MSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -35,14 +35,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// shuffle_sparse_rows
-arma::sp_mat shuffle_sparse_rows(const arma::sp_mat& M);
-RcppExport SEXP _mclink_shuffle_sparse_rows(SEXP MSEXP) {
+// mc_shuffle_matrix
+arma::sp_mat mc_shuffle_matrix(const arma::sp_mat& M);
+RcppExport SEXP _mclink_mc_shuffle_matrix(SEXP MSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::sp_mat& >::type M(MSEXP);
-    rcpp_result_gen = Rcpp::wrap(shuffle_sparse_rows(M));
+    rcpp_result_gen = Rcpp::wrap(mc_shuffle_matrix(M));
+    return rcpp_result_gen;
+END_RCPP
+}
+// simulate_panmixia
+arma::mat simulate_panmixia(const arma::sp_mat& M, const int iterations, const size_t sample_size, const int min_distance);
+RcppExport SEXP _mclink_simulate_panmixia(SEXP MSEXP, SEXP iterationsSEXP, SEXP sample_sizeSEXP, SEXP min_distanceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::sp_mat& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type sample_size(sample_sizeSEXP);
+    Rcpp::traits::input_parameter< const int >::type min_distance(min_distanceSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulate_panmixia(M, iterations, sample_size, min_distance));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -50,7 +64,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_mclink_relative_diff", (DL_FUNC) &_mclink_relative_diff, 1},
     {"_mclink_mc_sample_matrix", (DL_FUNC) &_mclink_mc_sample_matrix, 3},
-    {"_mclink_shuffle_sparse_rows", (DL_FUNC) &_mclink_shuffle_sparse_rows, 1},
+    {"_mclink_mc_shuffle_matrix", (DL_FUNC) &_mclink_mc_shuffle_matrix, 1},
+    {"_mclink_simulate_panmixia", (DL_FUNC) &_mclink_simulate_panmixia, 4},
     {NULL, NULL, 0}
 };
 

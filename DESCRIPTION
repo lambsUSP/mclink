@@ -11,5 +11,9 @@ Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports: 
     Matrix,
-    Rcpp (>= 1.0.13)
-LinkingTo: Rcpp, RcppArmadillo
+    Rcpp (>= 1.0.13),
+    RcppProgress
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo,
+    RcppProgress

@@ -1,8 +1,11 @@
 // [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::depends(RcppProgress)]]
 #include <RcppArmadillo.h>
 #include <random>
 #include <vector>
 #include <algorithm>
+#include <progress.hpp>
+#include <progress_bar.hpp>
 
 
 // Convert sparse column in a dense vector with: -1, 0 and 1
@@ -35,10 +38,12 @@ double hamming_proportion(const arma::Col<int> &a, const arma::Col<int> &b) {
 
 
 // [[Rcpp::export]]
-arma::mat relative_diff(const arma::sp_mat &M) {
+arma::vec relative_diff(const arma::sp_mat &M) {
   arma::uword ncols = M.n_cols;
   arma::uword nrows = M.n_rows;
-  arma::mat result(ncols, ncols);
+  //arma::mat result(ncols, ncols);
+  std::vector<double> result_vec;
+  result_vec.reserve(ncols * (ncols - 1) / 2); // Reserve 
   
   // Convert all sparse columns in dense columns 
   std::vector<arma::Col<int>> sign_cols(ncols);
@@ -49,12 +54,12 @@ arma::mat relative_diff(const arma::sp_mat &M) {
   for (arma::uword i = 0; i < ncols; ++i) {
     for (arma::uword j = i + 1; j < ncols; ++j) {
       double dist = 1 - hamming_proportion(sign_cols[i], sign_cols[j]);
-      result(i, j) = dist;
-      result(j, i) = dist;
+      //result(i, j) = result(j, i) = dist;
+      result_vec.push_back(dist);
     }
   }
  
-  return result;
+  return arma::vec(result_vec);
 }
 
 
@@ -97,7 +102,7 @@ std::vector<int> mc_sample_rows(const int nrows, const size_t sample_size = 1000
 
 
 // [[Rcpp::export]]
-arma::sp_mat mc_sample_matrix(const arma::sp_mat &M, const size_t sample_size = 1000, const int min_distance = 1000) {
+arma::sp_mat mc_sample_matrix(const arma::sp_mat &M, const size_t sample_size, const int min_distance) {
   std::vector<int> rows = mc_sample_rows(M.n_rows, sample_size, min_distance);
   arma::uword n_sample = rows.size();
   arma::uword n_cols = M.n_cols;
@@ -189,3 +194,36 @@ arma::sp_mat mc_shuffle_matrix(const arma::sp_mat &M) {
 } 
 
 
+/*
+ *  Esta função retorna uma matriz com duas colunas, a primeira coluna são
+ *  as distâncias relativas observadas e a segunda coluna são as distâncias
+ *  relativas de uma população panmítica.
+*/
+// [[Rcpp::export]]
+arma::mat simulate_panmixia(const arma::sp_mat &M, const int iterations = 1000, const size_t sample_size = 1000, const int min_distance = 1000){
+  std::vector<double> original_all;
+  std::vector<double> shuffled_all;
+  Progress p(iterations, TRUE);
+  
+  original_all.reserve(iterations * M.n_cols);
+  shuffled_all.reserve(iterations * M.n_cols);
+  
+  for (int i = 0; i < iterations; ++i) {
+    p.increment();
+    arma::sp_mat sample_matrix = mc_sample_matrix(M, sample_size, min_distance);
+    arma::sp_mat shuffled_matrix = mc_shuffle_matrix(sample_matrix);
+    
+    arma::vec original = relative_diff(sample_matrix);
+    arma::vec shuffled = relative_diff(shuffled_matrix);
+    
+    original_all.insert(original_all.end(), original.begin(), original.end());
+    shuffled_all.insert(shuffled_all.end(), shuffled.begin(), shuffled.end());
+  }
+ 
+  // Converter para arma::mat
+  arma::mat result(original_all.size(), 2);
+  result.col(0) = arma::vec(original_all);
+  result.col(1) = arma::vec(shuffled_all);
+ 
+  return result;
+}

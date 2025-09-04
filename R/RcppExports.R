@@ -5,11 +5,15 @@ relative_diff <- function(M) {
     .Call(`_mclink_relative_diff`, M)
 }
 
-mc_sample_matrix <- function(M, sample_size = 1000L, min_distance = 1000L) {
+mc_sample_matrix <- function(M, sample_size, min_distance) {
     .Call(`_mclink_mc_sample_matrix`, M, sample_size, min_distance)
 }
 
-shuffle_sparse_rows <- function(M) {
-    .Call(`_mclink_shuffle_sparse_rows`, M)
+mc_shuffle_matrix <- function(M) {
+    .Call(`_mclink_mc_shuffle_matrix`, M)
+}
+
+simulate_panmixia <- function(M, iterations = 1000L, sample_size = 1000L, min_distance = 1000L) {
+    .Call(`_mclink_simulate_panmixia`, M, iterations, sample_size, min_distance)
 }
 
