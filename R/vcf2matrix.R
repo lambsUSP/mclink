@@ -42,11 +42,10 @@ vcf2matrix <- function(path, chr_num = 0, ref = NULL, limit = NULL) {
 #' @return vcf object with just the chromosome chosen
 #' @importFrom vcfR extract.gt getCHROM
 get_chromosome <- function(vcf, chr_num) {
-  chromosome <- getCHROM(vcf) |>
-    unique() |>
-    (\(.) .[chr_num])()
+  chr_unique <- getCHROM(vcf) |> unique() 
+  chromosome <- chr_unique[chr_num]
 
-  if (is.na(chromosome)) stop("Chromosome out of the range of chromosomes avaliable.")
+  if (is.na(chromosome)) paste("Chromosome ", chr_num, " out of the range. Chromosomes numbers avaliable are: ", paste(seq_along(chr_unique), collapse = ", ")) |> stop()
   idx <- vcf@fix[, "CHROM"] == chromosome
   vcf <- vcf[idx, ]
 

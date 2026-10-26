@@ -62,7 +62,7 @@ genetic_distribution <- function(data,
                                        min_distance = min_distance)
   }else{
       if (!(chr %in% chr_unique)) 
-         paste("The chromosome number is not valid, should be between chromosomes", min(chr_unique), "and", max(chr_unique)) |> stop()
+         paste("The chromosome ", chr," is not valid, the chromosomes numbers available are: ", paste(chr_unique, collapse = ", ")) |> stop()
       
       cat("Processing chromosome", chr, "\n")
       idx <- which(chromosomes == chr)
@@ -100,23 +100,23 @@ genetic_distribution <- function(data,
 plot.mclink_genetic_distribution <- function(result, chr = NULL, rd = FALSE, ...){
   if(!is.null(chr)){
     if (rd)
-      plot_association_index(result, chr = chr, ...) |> print()
+      plot_association_index(result, chr = chr, ...)
     else
-      plot_genetic_distance(result, chr = chr, ...) |> print()
+      plot_genetic_distance(result, chr = chr, ...)
   }
 
   else if(!is.null(result$genome)){
     if (rd)
-      plot_association_index(result, ...) |> print()
+      plot_association_index(result, ...)
     else 
-      plot_genetic_distance(result$genome, ...) |> print()
+      plot_genetic_distance(result$genome, ...)
   }else{
     for (i in seq_along(result$chromosomes)) {
       if(!is.null(result$chromosomes[[i]])){
         if (rd)
-          plot_association_index(result, chr = i, ...) |> print()
+          plot_association_index(result, chr = i, ...)
         else
-          plot_genetic_distance(result, chr = i, ...) |> print()
+          plot_genetic_distance(result, chr = i, ...)
 
       } 
     }

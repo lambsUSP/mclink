@@ -145,8 +145,8 @@ plot_genetic_distance <- function(
                                             face   = "bold",
                                             family = "Times", 
                                             size   = 12),
-        legend.position      = c(0.98, 0.98),
-        legend.justification = c(1, 1),
+        legend.position      = c(0.02, 0.98),
+        legend.justification = c(0, 1),
         legend.spacing.y     = unit(0, "pt"),
         legend.text          = element_text(size = 12),
         axis.line.y          = element_blank(),
@@ -248,7 +248,8 @@ plot_genetic_distance <- function(
     # Accept chromosome by index (integer) or by name (string)
     target_chr <- if (is.numeric(chr)) {
       if (chr < 1 || chr > length(chr_labels))
-        stop("chr = ", chr, " out of range. Available: 1 to ", length(chr_labels))
+        stop("chr = ", chr, " out of the range. Available:\n",
+             paste(chr_labels, collapse = ", "))
       chr_labels[chr]
     } else {
       if (!chr %in% chr_labels)

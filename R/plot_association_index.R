@@ -73,6 +73,9 @@ plot_association_index <- function(
     
     rd_mean <- mean(rd_values)
     rd_sd   <- sd(rd_values)
+
+    if (is.na(rd_sd)) 
+      stop("Just one value to calculate, therefore rd is indertemined as the variances are 0.")
     
     # P-value: 
     rd_p <- pnorm(0, mean = rd_mean, sd = rd_sd, lower.tail = TRUE)
@@ -105,20 +108,6 @@ plot_association_index <- function(
                                  chr_label   = NULL,
                                  show_x_axis = TRUE,
                                  title       = TRUE) {
-    if (is.na(stats$sd)) {
-      p <- ggplot(data.frame(values = stats$values), aes(x = values)) +
-        theme_classic(base_family = "Times") + 
-        geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
-        labs(
-          title = .build_plot_title(chr_label),
-          x     = if (show_x_axis) expression(bar(r)[d]) else NULL,
-          y     = "Density"
-        )
-
-      warning("Just one value to calculate, therefore rd is indertemined as the variances are 0.")
-      return(p)
-    }
-    
     pf      <- .format_pvalue(stats$p)
     x_range <- seq(stats$x_lower, stats$x_upper, length.out = 1000)
     
@@ -133,6 +122,11 @@ plot_association_index <- function(
       geom_line(
         data = gaussian_df, aes(x = x, y = y),
         color = "#3A7EBF", linewidth = 0.7, inherit.aes = FALSE
+      ) +
+      geom_density(
+                   data = data.frame(values = stats$values),
+                   aes(x = values),
+                   color = scales::alpha("steelblue", 0.2)
       ) +
       # Vertical reference line at rd = 0 (panmixia)
       geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
@@ -266,7 +260,8 @@ plot_association_index <- function(
     # Accept chromosome by index (integer) or by name (string)
     target_chr <- if (is.numeric(chr)) {
       if (chr < 1 || chr > length(chr_labels))
-        stop("chr = ", chr, " out of range. Available: 1 to ", length(chr_labels))
+        stop("chr = ", chr, " out of the range. Available:\n",
+             paste(chr_labels, collapse = ", "))
       chr_labels[chr]
     } else {
       if (!chr %in% chr_labels)

@@ -213,7 +213,7 @@ plot.mclink_ld_decay <- function(x, chr = NULL, ...) {
     if(is.null(x$chromosomes)) stop("Chromosomes are NULL, requires a result from ld(vcf_file, chr = 'by_chr').")
 
     if (!(chr %in% chr_unique)) 
-      paste("The chromosome number is not valid, should be between chromosomes", min(chr_unique), "and", max(chr_unique)) |> stop()
+      paste("The chromosome ", chr, " is not valid. The chromosomes numbers available are: ", paste(chr_unique, collapse = ", ")) |> stop()
 
     dat <- as.data.frame(x$chromosomes[[chr]])
   }
