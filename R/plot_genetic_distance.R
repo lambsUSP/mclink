@@ -248,7 +248,8 @@ plot_genetic_distance <- function(
     # Accept chromosome by index (integer) or by name (string)
     target_chr <- if (is.numeric(chr)) {
       if (chr < 1 || chr > length(chr_labels))
-        stop("chr = ", chr, " out of range. Available: 1 to ", length(chr_labels))
+        stop("chr = ", chr, " out of the range. Available:\n",
+             paste(chr_labels, collapse = ", "))
       chr_labels[chr]
     } else {
       if (!chr %in% chr_labels)

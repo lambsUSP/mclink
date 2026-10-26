@@ -62,7 +62,7 @@ genetic_distribution <- function(data,
                                        min_distance = min_distance)
   }else{
       if (!(chr %in% chr_unique)) 
-         paste("The chromosome number is not valid, should be between chromosomes", min(chr_unique), "and", max(chr_unique)) |> stop()
+         paste("The chromosome ", chr," is not valid, the chromosomes numbers available are: ", paste(chr_unique, collapse = ", ")) |> stop()
       
       cat("Processing chromosome", chr, "\n")
       idx <- which(chromosomes == chr)
