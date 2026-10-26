@@ -123,6 +123,11 @@ plot_association_index <- function(
         data = gaussian_df, aes(x = x, y = y),
         color = "#3A7EBF", linewidth = 0.7, inherit.aes = FALSE
       ) +
+      geom_density(
+                   data = data.frame(values = stats$values),
+                   aes(x = values),
+                   color = scales::alpha("steelblue", 0.2)
+      ) +
       # Vertical reference line at rd = 0 (panmixia)
       geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
       annotate(
